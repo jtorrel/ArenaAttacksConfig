@@ -1,0 +1,130 @@
+/* ============================================
+   SLIDER
+   ============================================ */
+
+.slider-root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Ligne label + valeur */
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.slider-label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.slider-value {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--muted);
+  transition: color 0.2s ease;
+  min-width: 3rem;
+  text-align: right;
+}
+
+/* Statuts sur la valeur affichée */
+.slider-root--valid   .slider-value { color: var(--status-valid); }
+.slider-root--invalid .slider-value { color: var(--status-invalid); }
+
+/* Piste + bornes */
+.slider-track-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.slider-bound {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* L'input range natif — restyled */
+.slider-input {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  /* Couleur de la piste selon statut — défaut */
+  background: linear-gradient(
+    to right,
+    var(--slider-fill) 0%,
+    var(--slider-fill) var(--slider-pct, 50%),
+    var(--border) var(--slider-pct, 50%),
+    var(--border) 100%
+  );
+}
+
+/* Thumb */
+.slider-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(44, 36, 22, 0.2);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.slider-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--slider-thumb);
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(44, 36, 22, 0.2);
+  transition: transform 0.1s ease;
+}
+
+.slider-input:hover::-webkit-slider-thumb,
+.slider-input:focus::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 2px 8px rgba(44, 36, 22, 0.25);
+}
+
+/* ---- Thèmes de couleur selon statut ---- */
+
+/* default */
+.slider-root--default {
+  --slider-fill:  var(--accent);
+  --slider-thumb: var(--accent);
+}
+
+/* valid */
+.slider-root--valid {
+  --status-valid: #4A7C59;
+  --slider-fill:  #4A7C59;
+  --slider-thumb: #4A7C59;
+}
+
+/* invalid */
+.slider-root--invalid {
+  --status-invalid: #9B3A2A;
+  --slider-fill:    #9B3A2A;
+  --slider-thumb:   #9B3A2A;
+}
+
+/* Focus visible clavier */
+.slider-input:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
