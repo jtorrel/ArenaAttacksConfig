@@ -1,0 +1,66 @@
+/* ============================================
+   TABS
+   ============================================ */
+
+.tabs-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* La barre d'onglets */
+.tabs-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-1);
+  padding: 0 var(--space-8);
+  padding-top: var(--space-6);
+  border-bottom: 2px solid var(--border);
+  background-color: var(--bg);
+}
+
+/* Chaque onglet */
+.tabs-tab {
+  position: relative;
+  padding: var(--space-3) var(--space-6);
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+  bottom: -2px; /* chevauchement sur la bordure */
+  user-select: none;
+}
+
+.tabs-tab:hover:not(.tabs-tab--active) {
+  color: var(--ink);
+  background: var(--border-soft);
+}
+
+/* Onglet actif — remonte et prend la couleur surface */
+.tabs-tab--active {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+  font-weight: 600;
+  z-index: 1;
+}
+
+/* Icône optionnelle dans le tab */
+.tabs-tab-icon {
+  margin-right: var(--space-2);
+  font-size: var(--text-base);
+}
+
+/* Le panneau de contenu */
+.tabs-panel {
+  flex: 1;
+  background: var(--surface);
+  overflow-y: auto;
+}
