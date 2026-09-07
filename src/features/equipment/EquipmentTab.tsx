@@ -1,53 +1,55 @@
 import { useState } from 'react'
-import { Slider } from '../../components/slider/Slider'
+import { Slider } from '../../components/Slider/Slider'
+import { useConfigStore } from '../../store/configStore'
 
-interface StatSlot {
-  id: 'head' | 'chest' | 'boots'
+// ---- Armes disponibles (à déplacer dans un fichier de données plus tard) ----
+
+const WEAPONS = ['Épée longue', 'Dague', 'Bâton de mage', 'Arc', 'Marteau de guerre']
+
+// ---- Panneau stat (tête / torse / bottes) ------------------------------------
+
+function StatSlotPanel({
+  label, statA, statB, value, onChange,
+}: {
   label: string
   statA: string
   statB: string
   value: number
-}
+  onChange: (v: number) => void
+}) {
+  const pctA = 100 - value
+  const pctB = value
 
-interface WeaponSlot {
-  id: 'weapon'
-  label: string
-  selected: string | null
-}
-
-const WEAPONS = ['Épée longue', 'Dague', 'Bâton de mage', 'Arc', 'Marteau de guerre']
-
-function StatSlotPanel({ slot, onChange }: { slot: StatSlot; onChange: (v: number) => void }) {
-  const pctA = 100 - slot.value
-  const pctB = slot.value
   return (
     <div style={{
       background: 'var(--surface)', border: '1px solid var(--border)',
       borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)',
-      boxShadow: 'var(--shadow-raised)', width: '220px', zIndex: 10,
+      boxShadow: 'var(--shadow-raised)', width: '220px',
     }}>
       <p style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-sm)', color: 'var(--ink)', marginBottom: 'var(--space-3)' }}>
-        {slot.label}
+        {label}
       </p>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-2)' }}>
-        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', fontWeight: 600 }}>{slot.statA}</span>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', fontWeight: 600 }}>{statA}</span>
         <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted)' }}>{pctA}%</span>
       </div>
-      <Slider label="" value={slot.value} onChange={onChange} />
+      <Slider label="" value={value} onChange={onChange} />
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-2)' }}>
         <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted)' }}>{pctB}%</span>
-        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', fontWeight: 600 }}>{slot.statB}</span>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', fontWeight: 600 }}>{statB}</span>
       </div>
     </div>
   )
 }
 
-function WeaponPanel({ slot, onChange }: { slot: WeaponSlot; onChange: (v: string) => void }) {
+// ---- Panneau arme ------------------------------------------------------------
+
+function WeaponPanel({ selected, onChange }: { selected: string | null; onChange: (w: string) => void }) {
   return (
     <div style={{
       background: 'var(--surface)', border: '1px solid var(--border)',
       borderRadius: 'var(--radius-lg)', padding: 'var(--space-4)',
-      boxShadow: 'var(--shadow-raised)', width: '200px', zIndex: 10,
+      boxShadow: 'var(--shadow-raised)', width: '200px',
     }}>
       <p style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-sm)', color: 'var(--ink)', marginBottom: 'var(--space-3)' }}>
         Choisir une arme
@@ -56,9 +58,9 @@ function WeaponPanel({ slot, onChange }: { slot: WeaponSlot; onChange: (v: strin
         <div key={w} onClick={() => onChange(w)} style={{
           padding: 'var(--space-2) var(--space-3)', borderRadius: 'var(--radius-sm)',
           cursor: 'pointer', fontSize: 'var(--text-sm)',
-          color: slot.selected === w ? 'var(--accent)' : 'var(--ink)',
-          background: slot.selected === w ? 'rgba(91,126,95,0.1)' : 'transparent',
-          fontWeight: slot.selected === w ? 600 : 400,
+          color: selected === w ? 'var(--accent)' : 'var(--ink)',
+          background: selected === w ? 'rgba(91,126,95,0.1)' : 'transparent',
+          fontWeight: selected === w ? 600 : 400,
         }}>
           {w}
         </div>
@@ -66,6 +68,8 @@ function WeaponPanel({ slot, onChange }: { slot: WeaponSlot; onChange: (v: strin
     </div>
   )
 }
+
+// ---- Slot SVG cliquable ------------------------------------------------------
 
 function SlotBox({ x, y, w, h, title, line1, line2, isEmpty, onClick, isActive }: {
   x: number; y: number; w: number; h: number
@@ -96,6 +100,8 @@ function SlotBox({ x, y, w, h, title, line1, line2, isEmpty, onClick, isActive }
     </g>
   )
 }
+
+// ---- Silhouette --------------------------------------------------------------
 
 function ArmorSilhouette() {
   return (
@@ -175,12 +181,15 @@ function ArmorSilhouette() {
   )
 }
 
+// ---- Composant principal -----------------------------------------------------
+
 export function EquipmentTab() {
   const [activeSlot, setActiveSlot] = useState<string | null>(null)
-  const [head,   setHead]   = useState<StatSlot>({ id: 'head',  label: 'Tête',   statA: 'Vitesse de cast',  statB: 'Cooldown des sorts', value: 50 })
-  const [chest,  setChest]  = useState<StatSlot>({ id: 'chest', label: 'Torse',  statA: 'Attaque',          statB: 'Défense',            value: 50 })
-  const [boots,  setBoots]  = useState<StatSlot>({ id: 'boots', label: 'Bottes', statA: 'Cooldown du dash', statB: 'Vitesse de course',   value: 50 })
-  const [weapon, setWeapon] = useState<WeaponSlot>({ id: 'weapon', label: 'Arme', selected: null })
+
+  // Lecture du store
+  const equipment        = useConfigStore(s => s.config.equipment)
+  const setEquipmentSlider = useConfigStore(s => s.setEquipmentSlider)
+  const setWeapon        = useConfigStore(s => s.setWeapon)
 
   const toggle = (id: string) => setActiveSlot(prev => prev === id ? null : id)
 
@@ -194,20 +203,37 @@ export function EquipmentTab() {
   return (
     <div style={{ position: 'relative', padding: 'var(--space-6)', display: 'flex', justifyContent: 'center' }}>
 
+      {/* Panneau flottant actif */}
       {activeSlot && (
         <div style={{ position: 'absolute', ...panelPositions[activeSlot], zIndex: 20 }}>
           {activeSlot === 'weapon' ? (
-            <WeaponPanel slot={weapon} onChange={(w) => { setWeapon(p => ({ ...p, selected: w })); setActiveSlot(null) }} />
+            <WeaponPanel
+              selected={equipment.weapon}
+              onChange={(w) => { setWeapon(w); setActiveSlot(null) }}
+            />
           ) : activeSlot === 'head' ? (
-            <StatSlotPanel slot={head}  onChange={(v) => setHead(p => ({ ...p, value: v }))} />
+            <StatSlotPanel
+              label="Tête" statA="Vitesse de cast" statB="Cooldown des sorts"
+              value={equipment.head.value}
+              onChange={(v) => setEquipmentSlider('head', v)}
+            />
           ) : activeSlot === 'chest' ? (
-            <StatSlotPanel slot={chest} onChange={(v) => setChest(p => ({ ...p, value: v }))} />
+            <StatSlotPanel
+              label="Torse" statA="Attaque" statB="Défense"
+              value={equipment.chest.value}
+              onChange={(v) => setEquipmentSlider('chest', v)}
+            />
           ) : (
-            <StatSlotPanel slot={boots} onChange={(v) => setBoots(p => ({ ...p, value: v }))} />
+            <StatSlotPanel
+              label="Bottes" statA="Cooldown du dash" statB="Vitesse de course"
+              value={equipment.boots.value}
+              onChange={(v) => setEquipmentSlider('boots', v)}
+            />
           )}
         </div>
       )}
 
+      {/* SVG principal */}
       <svg viewBox="0 0 680 480" style={{ width: '100%', maxWidth: '720px' }}
         onClick={(e) => { if (e.target === e.currentTarget) setActiveSlot(null) }}>
 
@@ -219,24 +245,24 @@ export function EquipmentTab() {
         <path d="M244 266 Q260 266 270 252"  stroke="#C4B49A" strokeWidth="0.8" strokeDasharray="3 3" fill="none"/>
 
         <SlotBox x={74}  y={30}  w={170} h={64} title="Tête"   isActive={activeSlot === 'head'}
-          line1={`← ${100 - head.value}% vitesse de cast`}
-          line2={`cooldown des sorts ${head.value}% →`}
+          line1={`← ${100 - equipment.head.value}% vitesse de cast`}
+          line2={`cooldown des sorts ${equipment.head.value}% →`}
           onClick={() => toggle('head')} />
 
         <SlotBox x={436} y={120} w={170} h={64} title="Torse"  isActive={activeSlot === 'chest'}
-          line1={`← ${100 - chest.value}% attaque`}
-          line2={`défense ${chest.value}% →`}
+          line1={`← ${100 - equipment.chest.value}% attaque`}
+          line2={`défense ${equipment.chest.value}% →`}
           onClick={() => toggle('chest')} />
 
         <SlotBox x={436} y={370} w={170} h={64} title="Bottes" isActive={activeSlot === 'boots'}
-          line1={`← ${100 - boots.value}% dash`}
-          line2={`vitesse ${boots.value}% →`}
+          line1={`← ${100 - equipment.boots.value}% dash`}
+          line2={`vitesse ${equipment.boots.value}% →`}
           onClick={() => toggle('boots')} />
 
         <SlotBox x={74}  y={236} w={170} h={64} title="Arme"   isActive={activeSlot === 'weapon'}
-          line1={weapon.selected ?? 'emplacement vide'}
-          line2={weapon.selected ? undefined : 'cliquer pour choisir'}
-          isEmpty={!weapon.selected}
+          line1={equipment.weapon ?? 'emplacement vide'}
+          line2={equipment.weapon ? undefined : 'cliquer pour choisir'}
+          isEmpty={!equipment.weapon}
           onClick={() => toggle('weapon')} />
 
       </svg>
