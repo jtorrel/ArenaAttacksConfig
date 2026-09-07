@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Slider } from '../../components/Slider/Slider'
+import { Slider } from '../../components/slider/Slider'
 import { useConfigStore } from '../../store/configStore'
 
 // ---- Armes disponibles (à déplacer dans un fichier de données plus tard) ----

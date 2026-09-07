@@ -1,10 +1,8 @@
 import { useState } from 'react';
-import { Tabs, TabConfig } from './components/tabs/Tabs';
+import { Tabs, TabConfig } from './components/Tabs/Tabs';
 import { EquipmentTab } from './features/equipment/EquipmentTab';
 import { SpellbookTab } from './features/spellbook/SpellbookTab';
-
-// ---- Définition des onglets -------------------------------------
-
+import { OverviewTab } from './features/overview/OverviewTab';
 
 const TABS: TabConfig[] = [
   {
@@ -19,9 +17,13 @@ const TABS: TabConfig[] = [
     icon: '✦',
     content: <SpellbookTab />,
   },
-];
-
-// ---- Composant racine -------------------------------------------
+  {
+    id: 'overview',
+    label: 'Vue d\'ensemble',
+    icon: '◈',
+    content: <OverviewTab />,
+  },
+]
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('equipment');
